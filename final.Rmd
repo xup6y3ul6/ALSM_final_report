@@ -332,6 +332,7 @@ Anova(model_1st,type = "II")
 ---
 
 # residul plot
+
 .pull-left[
 ```{r, fig.align="center", out.width="100%"}
 model_1st_data <- data.frame(res = residuals(model_1st),
