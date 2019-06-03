@@ -1,7 +1,7 @@
 ###########################################################
 ## reference: https://github.com/ggobi/ggally/issues/139 ##
 ###########################################################
-
+library(ggplot2)
 library(RColorBrewer)
 
 my_custom_cor <- function(data, mapping, color = I("grey50"), sizeRange = c(1, 5), ...) {
@@ -136,3 +136,57 @@ my_custom_smooth <- function(data, mapping, ...) {
 my_custom_smooth(iris, aes(Sepal.Length, Sepal.Width))
 # my_custom_cor(iris, aes(Sepal.Length, Sepal.Width))
 # my_custom_cor_color(iris, aes(Sepal.Length, Sepal.Width))
+
+
+##
+library(gridExtra)
+
+scatter_and_histogram_plot <- function(.data, .x, .y, .group){
+  g <- ggplot(.data, aes_string(.x, .y, color = .group)) +
+    geom_point() +
+    theme_bw() +
+    theme(legend.justification=c(0,1), legend.position=c(0,1),
+          legend.text = element_text(size = 20),
+          legend.title = element_blank())
+  
+  theme0 <- function(...) theme( legend.position = "none",
+                                 panel.background = element_blank(),
+                                 panel.grid.major = element_blank(),
+                                 panel.grid.minor = element_blank(),
+                                 panel.margin = unit(0,"null"),
+                                 axis.ticks = element_blank(),
+                                 axis.text.x = element_blank(),
+                                 axis.text.y = element_blank(),
+                                 axis.title.x = element_blank(),
+                                 axis.title.y = element_blank(),
+                                 axis.ticks.length = unit(0,"null"),
+                                 axis.ticks.margin = unit(0,"null"),
+                                 panel.border=element_rect(color=NA),...)
+  
+  g_up <- ggplot(.data, aes_string(.x, colour = .group, fill = .group)) + 
+    geom_histogram(alpha=0.5) + 
+    scale_x_continuous(breaks=NULL,expand=c(0.02,0)) +
+    scale_y_continuous(breaks=NULL,expand=c(0.02,0)) +
+    theme_bw() +
+    theme0(plot.margin = unit(c(1,0,0,2.2),"lines")) 
+  
+  g_right <- ggplot(.data, aes_string(.y, colour = .group, fill = .group)) + 
+    geom_histogram(alpha=0.5) + 
+    coord_flip()  + 
+    scale_x_continuous(labels = NULL,breaks=NULL,expand=c(0.02,0)) +
+    scale_y_continuous(labels = NULL,breaks=NULL,expand=c(0.02,0)) +
+    theme_bw() +
+    theme0(plot.margin = unit(c(0,1,1.2,0),"lines"))
+  
+  grid.arrange(arrangeGrob(g_up, ncol = 2, widths = c(4,1)),
+               arrangeGrob(g, g_right, ncol = 2, widths = c(4,1)),
+               heights = c(1,4))
+}
+
+print_summary <- function(data){
+  .s <- summary(data) %>% t() %>% t() %>% round(digits = 3)
+  rownames(.s) <- c("Min.", "Qu_1", "Med.", "Mean", "Qu_3", "Max.")
+  write.table(format(.s, justify = "right"), 
+              quote =FALSE, col.names = FALSE, sep = "\t")
+}
+

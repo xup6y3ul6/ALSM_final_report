@@ -1,6 +1,7 @@
 ## transform rawdata to Data for lm
 
 library(dplyr)
+library(tidyr)
 
 # referendum 14
 data <- readRDS("rawdata.rds")
@@ -31,13 +32,29 @@ total_number <- data %>%
 order_number <- data %>% 
   select(people_age_065_m:people_age_100up_f) %>% 
   apply(1, sum)
+middle_number <- data %>% 
+  select(people_age_031_m:people_age_064_f) %>% 
+  apply(1, sum)
 young_number <- data %>% 
   select(people_age_018_m:people_age_030_f) %>% 
   apply(1, sum)
 old_ratio <- order_number / total_number
+middle_ratio <- middle_number / total_number
 young_ratio <- young_number / total_number
 young_old_ratio <- young_ratio / old_ratio
-age <- data.frame(old_ratio, young_ratio, young_old_ratio) 
+
+.d <- data %>% 
+  select(site_id, people_age_018_m:people_age_100up_f) %>% 
+  gather(key = age, value = count, -site_id)
+.d$age_num <- substring(.d$age, 12, 14) %>% as.numeric()
+.d <- .d %>% 
+  group_by(site_id, age_num) %>% 
+  summarise(count = sum(count))
+age_med <- .d %>% 
+  group_by(site_id) %>% 
+  summarise(age_med = median(rep(age_num, count)))
+
+age <- data.frame(old_ratio, middle_ratio, young_ratio, young_old_ratio, age_med) 
 
 # married
 married <- data %>% 
@@ -80,8 +97,10 @@ Data <- data.frame(agree_rate = referendum14$agree_rate,
                    location = .location_fac,
                    gender_ratio = gender$gender_ratio,
                    young_ratio = age$young_ratio,
+                   middle_ratio = age$middle_ratio,
                    old_ratio = age$old_ratio,
                    young_old_ratio = age$young_old_ratio,
+                   age_med = age$age_med,
                    married_ratio = married$married_ratio,
                    college_ratio = education$college_ratio,
                    salary_med = salaryMed$salary_mid,

@@ -9,7 +9,7 @@ author:
 date: "`r Sys.Date()`"
 output:
   xaringan::moon_reader:
-    css: "my-theme.css"
+    css: [default, my-theme.css]
     lib_dir: libs
     nature:
       highlightStyle: github
@@ -24,7 +24,7 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 
 # QR-code of this R presentation
 
-```{r, fig.algin="center"}
+```{r, fig.align="center"}
 knitr::include_graphics("QR_code.png")
 ```
 
@@ -64,6 +64,7 @@ knitr::include_graphics("figure/公投第14案.png")
 ---
 
 # Outline
+
 - 文獻回顧與研究目的
 
 - 資料來源與前處理
@@ -101,6 +102,10 @@ class: inverse, center, middle
 
 # 公投第 14 案
 
+```{r}
+source("my_custom_function.R")
+```
+
 .pull-left_25[
 ```{r, comment=NA}
 library(dplyr)
@@ -108,71 +113,60 @@ library(tidyr)
 
 Data <- readRDS("Data.rds")
 
-print_summary <- function(data){
-  .s <- summary(data) %>% t() %>% t() %>% round(digits = 3)
-  rownames(.s) <- c("Min.", "Qu_1", "Med.", "Mean", "Qu_3", "Max.")
-  write.table(format(.s, justify = "right"), 
-              quote =FALSE, col.names = FALSE, sep = "\t")
-}
-
 print_summary(Data$agree_rate)
 ```
 ]
-.pull-right_75[
-```{r, out.height="100%", fig.align="right"}
+
+.pull-right_70[
+```{r, fig.width=10, fig.height=10, out.width="90%", fig.align="center"}
 library(ggplot2)
-library(plotly)
-g <- ggplot(Data, aes(x = agree_rate, fill = location)) +
+ggplot(Data, aes(x = agree_rate, fill = location)) +
   geom_histogram() +
-  theme_bw()
-ggplotly(g) %>% 
-  layout(legend = list(orientation = "h", x = 0, y = 1))
+  theme_bw() +
+  theme(legend.position = "top") 
 ```
 ]
 
 ---
 
 # 投票率
+
 .pull-left_25[
 ```{r, comment=NA}
 print_summary(Data$vote_rate)
 ```
 ]
-.pull-right_75[
-```{r, out.height="100%", fig.align="right"}
-g <- ggplot(Data, aes(x = vote_rate, fill = location)) +
-  geom_histogram() +
-  theme_bw()
-ggplotly(g) %>% 
-  layout(legend = list(orientation = "h", x = 0, y = 1))
+
+.pull-right_70[
+```{r, fig.width=10, fig.height=10, out.width="90%", fig.align="center"}
+scatter_and_histogram_plot(Data, .x = "vote_rate", .y = "agree_rate", .group = "location")
 ```
 ]
+
 ---
 
 # 性別比
+
 .pull-left_25[
 ```{r, comment=NA}
 print_summary(Data$gender_ratio)
 ```
 ]
-.pull-right_75[
-```{r, out.height="100%", fig.align="right"}
-g <- ggplot(Data, aes(gender_ratio, fill = location)) +
-  geom_histogram() +
-  theme_bw()
-ggplotly(g) %>% 
-  layout(legend = list(orientation = "h", x = 0, y = 1))
+
+.pull-right_70[
+```{r, fig.width=10, fig.height=10, out.width="90%", fig.align="center"}
+scatter_and_histogram_plot(Data, .x = "gender_ratio", .y = "agree_rate", .group = "location")
 ```
 ]
 ---
 
 # 年齡組成
 
-老人太多較無法接受 & 都是老人去投票？
+.pull-left_30[
+老人太多較無法接受 & 都是老人去投票？  
 
 --
 
-.pull-left_25[
 老年人(65~)比例
 ```{r, comment=NA}
 print_summary(Data$old_ratio)
@@ -183,43 +177,40 @@ print_summary(Data$old_ratio)
 print_summary(Data$young_ratio)
 ```
 ]
-.pull-right_75[
-```{r, out.height="100%", fig.align="right"}
+
+.pull-right_70[
+```{r, fig.width=10, fig.height=10, out.width="90%", fig.align="center"}
 g <- Data %>% 
-  select(old_ratio, young_ratio, location) %>% 
-  gather(key = ageGroup, value = ratio, old_ratio, young_ratio) %>% 
-  ggplot(aes(x = ratio, fill = location)) +
-  geom_histogram() +
-  facet_wrap(~ageGroup) +
-  theme_bw()
-ggplotly(g) %>% 
-  layout(legend = list(orientation = "h", x = 0, y = 1))
+  select(agree_rate, old_ratio, middle_ratio, young_ratio, age_med, location) %>% 
+  gather(key = ageGroup, value = ratio, old_ratio, middle_ratio, young_ratio, age_med) %>% 
+  ggplot(aes(x = ratio, y = agree_rate)) +
+  geom_point(aes(color = location)) +
+  geom_smooth(method = lm) + 
+  facet_wrap(~ageGroup, scales = "free") +
+  theme_bw() +
+  theme(legend.position = "top") 
+g
 ```
-]
-.footnote[
-*應該改用青年和中年，之前記錯了
 ]
 
 ---
 
 # 結婚狀況
 
-曾今結婚率 = (喪偶＋有偶+離婚) / Total
+.pull-left_30[
+$曾今結婚率=\frac{喪偶＋有偶+離婚}{Total}$
+
 
 --
 
-.pull-left_25[
 ```{r, comment=NA}
 print_summary(Data$married_ratio)
 ```
 ]
-.pull-right_75[
-```{r, fig.height=6, fig.align="right"}
-g <- ggplot(Data, aes(married_ratio, fill = location)) + 
-  geom_histogram() +
-  theme_bw()
-ggplotly(g) %>% 
-  layout(legend = list(orientation = "h", x = 0, y = 1))
+
+.pull-right_70[
+```{r, fig.width=10, fig.height=10, out.width="90%", fig.align="center"}
+scatter_and_histogram_plot(Data, .x = "married_ratio", .y = "agree_rate", .group = "location")
 ```
 ]
 
@@ -227,22 +218,20 @@ ggplotly(g) %>%
 
 # 教育程度
 
-大專畢業的比例 = (大學+大專+碩士+博士) / Total
+.pull-left_30[
+$大專畢業的比例=\frac{大學+大專+碩士+博士}{Total}$  
+
 
 --
 
-.pull-left_25[
 ```{r, comment=NA}
 print_summary(Data$college_ratio)
 ```
 ]
-.pull-right_75[
-```{r, fig.height=6, fig.align="right"}
-g <- ggplot(Data, aes(college_ratio, fill = location)) +
-  geom_histogram() +
-  theme_bw()
-ggplotly(g) %>% 
-  layout(legend = list(orientation = "h", x = 0, y = 1))
+
+.pull-right_70[
+```{r, fig.width=10, fig.height=10, out.width="90%", fig.align="center"}
+scatter_and_histogram_plot(Data, .x = "college_ratio", .y = "agree_rate", .group = "location")
 ```
 ]
 
@@ -250,26 +239,25 @@ ggplotly(g) %>%
 
 # 薪水中位數
 
-.pull-left_25[
+.pull-left_30[
 ```{r, comment=NA}
 print_summary(Data$salary_med)
 ```
 ]
-.pull-right_75[
-```{r, fig.height = 6, fig.align="right"}
-g <- ggplot(Data, aes(salary_med, fill = location)) +
-  geom_histogram() +
-  theme_bw()
-ggplotly(g) %>% 
-  layout(legend = list(orientation = "h", x = 0, y = 1))
+
+.pull-right_70[
+```{r, fig.width=10, fig.height=10, out.width="90%", fig.align="center"}
+scatter_and_histogram_plot(Data, .x = "salary_med", .y = "agree_rate", .group = "location")
 ```
 ]
 
 ---
 
-# 資料地圖
+# 資料地圖 [(連結)](https://xup6y3ul6.github.io/ALSN_final_report/referendum14_map.html#1)
 
-[map](https://xup6y3ul6.github.io/ALSN_final_report/referendum14_map.html#1)
+```{r, fig.height=6, out.width="60%", fig.align="center"}
+knitr::include_graphics("map.png")
+```
 
 ---
 
@@ -289,7 +277,7 @@ names(data) <- c("Y", paste0("X", 1:(length(.names)-1)))
 
 ## reference: https://github.com/ggobi/ggally/issues/139 
 library(GGally)
-source("my_custom_GGally.R")
+
 ggpairs(data, 
         upper = list(continuous = my_custom_cor_color),
         lower = list(continuous = my_custom_smooth)) 
