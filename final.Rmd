@@ -3,9 +3,9 @@ title: "應用線性統計模型_期末報告"
 subtitle: "2018 年公投第 14 案回歸模型探討"
 author: 
 - "心理三 B05207063 楊昊紘"
-- "心理三 B05207045 張倚郡"
-- "心理三 B04902070 楊聖斌"
 - "心理五 B03605059 林子堯"
+- "心理三 B04902070 楊聖斌"
+- "心理三 B05207045 張倚郡"
 date: "`r Sys.Date()`"
 output:
   xaringan::moon_reader:
@@ -264,8 +264,9 @@ knitr::include_graphics("map.png")
 # scatter-correlation plot
 ```{r, fig.align="center", fig.height=7.5, fig.width=10}
 data <- Data %>% 
-  select(agree_rate, vote_rate, is_municipality, 
-         gender_ratio, young_old_ratio, 
+  select(agree_rate, 
+         vote_rate, is_municipality, 
+         gender_ratio, young_ratio, middle_ratio, 
          married_ratio, college_ratio, salary_med)
 .names <- names(data)
 names(data) <- c("Y", paste0("X", 1:(length(.names)-1)))
@@ -301,8 +302,11 @@ agree_rate = vote_rate + municipality +
 library(car)
 model_1st <- lm(Y ~ ., data)
 . <- summary(model_1st)
+.
 .$coefficients %>% round(digits = 3)
+
 ```
+
 ```{r, comment=NA}
 write.table(paste("Multiple R-squared:", round(.$r.squared, 2), ", ", "Adjusted R-squared:", round(.$adj.r.squared, 2)), 
             quote = FALSE, row.names = FALSE, col.names = FALSE)
@@ -321,27 +325,29 @@ Anova(model_1st,type = "II")
 
 # residul plot
 
-.pull-left[
 ```{r, fig.align="center", out.width="100%"}
-model_1st_data <- data.frame(res = residuals(model_1st),
-                             fit = predict(model_1st),
-                             y = data$Y)
-ggplot(model_1st_data, aes(x = res, y = fit)) +
+model_1st_data <- cbind(data,
+                        res = residuals(model_1st),
+                        fit = predict(model_1st))
+Xnames <- names(data)[-1]
+g <- lapply(Xnames, function(X){
+  ggplot(model_1st_data, aes_string(x = X, y = "res")) +
   geom_point() +
   theme_bw()
-#gridExtra::grid.arrange(g1, g2, nrow = 1)
+})
+
+gridExtra::grid.arrange(grobs = g, nrow = 3)
 ```
-]
-.pull-right[
-```{r, fig.align="center", out.width="100%"}
+---
+
+# Q-Q plot
+```{r}
 ggplot(model_1st_data, aes(sample = res)) +
   geom_qq() +
   geom_qq_line(color = "red", line.p = c(0.25, 0.75), linetype = "dashed") + 
   theme_bw()
 ```
-]
 
----
 
 # check outlier
 
@@ -366,6 +372,7 @@ write.table(paste("Multiple R-squared:", round(.$r.squared, 2), ", ", "Adjusted 
 
 ```{r, comment=NA}
 library(leaps)
+library(MPV)
 best <- function(model, nbest = 1, nvmax = 8, ...) {
   subsets <- regsubsets(formula(model), model.frame(model), nbest = nbest, nvmax = nvmax, ...)
   subsets <- with(summary(subsets),

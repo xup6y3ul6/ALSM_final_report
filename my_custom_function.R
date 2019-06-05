@@ -1,6 +1,7 @@
 ###########################################################
 ## reference: https://github.com/ggobi/ggally/issues/139 ##
 ###########################################################
+
 library(ggplot2)
 library(RColorBrewer)
 
@@ -133,7 +134,7 @@ my_custom_smooth <- function(data, mapping, ...) {
     theme_bw()
 }
 
-my_custom_smooth(iris, aes(Sepal.Length, Sepal.Width))
+# my_custom_smooth(iris, aes(Sepal.Length, Sepal.Width))
 # my_custom_cor(iris, aes(Sepal.Length, Sepal.Width))
 # my_custom_cor_color(iris, aes(Sepal.Length, Sepal.Width))
 
@@ -143,10 +144,12 @@ library(gridExtra)
 
 scatter_and_histogram_plot <- function(.data, .x, .y, .group){
   g <- ggplot(.data, aes_string(.x, .y, color = .group)) +
-    geom_point() +
+    geom_point(size = 1.2) +
     theme_bw() +
-    theme(legend.justification=c(0,1), legend.position=c(0,1),
-          legend.text = element_text(size = 20),
+    theme(legend.justification=c(0,1), legend.position=c(0.02,0.98),
+          legend.text = element_text(size = 18),
+          legend.background = element_rect(fill="transparent"),
+          legend.key.size = unit(1.5, "cm")
           legend.title = element_blank())
   
   theme0 <- function(...) theme( legend.position = "none",
