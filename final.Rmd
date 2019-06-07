@@ -15,6 +15,8 @@ output:
       highlightStyle: github
       highlightLines: true
       countIncrementalSlides: false
+      navigation:
+        scroll: false # disable slide transitions by scrolling
 ---
 
 ```{r setup, include=FALSE}
@@ -22,11 +24,13 @@ options(htmltools.dir.version = FALSE)
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 ```
 
-# QR-code of this R presentation
+# QR-code 
 
+.large[
 [https://bit.ly/2ZcWYvw](https://bit.ly/2ZcWYvw)
+]
 ```{r, fig.align="center"}
-knitr::include_graphics("QR_code.png")
+knitr::include_graphics("figure/QR_code.png")
 ```
 
 ---
@@ -58,9 +62,11 @@ knitr::include_graphics("figure/愛家公投.png")
 
 # 探討對象
 
+.scroll-output[
 ```{r, out.width="60%", fig.align="center"}
 knitr::include_graphics("figure/公投第14案.png")
 ```
+]
 
 ---
 
@@ -106,6 +112,7 @@ class: inverse, center, middle
     
 - 薪水中位數：
     + [財政部財政資訊中心_105年度綜合所得稅申報核定統計專冊](https://bit.ly/2M3IiwY)
+
 
 資料數量：全台鄉、鎮、市、區共 368 個  
 .red[反應變項]：公投第14案同意率  
@@ -176,10 +183,20 @@ scatter_and_histogram_plot(Data, .x = "gender_ratio", .y = "agree_rate", .group 
 # 年齡組成
 
 .pull-left_30[
-- 老人多且較無法接受? 
+
+- 老人多且較無法接受?  
 - 都是老人去投票？  
 
---
+.scroll-box-20[
+年齡中位數比例
+```{r, comment=NA}
+print_summary(Data$age_med)
+```
+
+老年人(65~)比例
+```{r, comment=NA}
+print_summary(Data$old_ratio)
+```
 
 中年人(31~64)比例
 ```{r, comment=NA}
@@ -190,7 +207,7 @@ print_summary(Data$old_ratio)
 ```{r, comment=NA}
 print_summary(Data$young_ratio)
 ```
-]
+]]
 
 .pull-right_70[
 ```{r, fig.width=10, fig.height=10, out.width="90%", fig.align="center"}
@@ -214,7 +231,6 @@ g
 .pull-left_30[
 $曾今結婚率=\frac{喪偶＋有偶+離婚}{Total}$
 
---
 
 ```{r, comment=NA}
 print_summary(Data$married_ratio)
@@ -234,8 +250,6 @@ scatter_and_histogram_plot(Data, .x = "married_ratio", .y = "agree_rate", .group
 .pull-left_30[
 $大專畢業的比例=\frac{大學+大專+碩士+博士}{Total}$  
 
-
---
 
 ```{r, comment=NA}
 print_summary(Data$college_ratio)
@@ -269,7 +283,7 @@ scatter_and_histogram_plot(Data, .x = "salary_med", .y = "agree_rate", .group = 
 # 資料地圖 [(連結)](https://xup6y3ul6.github.io/ALSN_final_report/referendum14_map.html#1)
 
 ```{r, fig.height=6, out.width="60%", fig.align="center"}
-knitr::include_graphics("map.png")
+knitr::include_graphics("figure/map.png")
 ```
 
 ---
@@ -436,8 +450,7 @@ cor(model_1st_qq$x, model_1st_qq$y)
 
 # find better models
 
-.small[
-```{r, eval=require('DT'), tidy=FALSE}
+```{r, fig.align="center"}
 library(leaps)
 library(MPV)
 library(DT)
@@ -469,6 +482,40 @@ best <- function(model, nbest = 1, nvmax = 8, ...) {
   return(subsets)
 }  
 
+.data <- best(lm(agree ~., data), nbest = 10, nvmax = 10) %>% 
+  gather(key = index, value = value, rsq:PRESS)
+
+criterion <- data.frame(
+  index = c("rsq", "adjr2", "cp", "aic", "bic", "PRESS"),
+  critera.fun = c("max", "max", "min", "min", "min", "min")
+)
+
+g <- list()
+
+for(i in 1:nrow(criterion)){
+  .index <- criterion[i, "index"]
+  .critera.fun <- criterion[i, "critera.fun"] %>% as.character()
+  
+  g[[i]] <- .data %>% 
+    filter(index == .index) %>% 
+    ggplot(aes(x = p, y = value)) +
+    geom_point(size = 0.6) +
+    scale_x_continuous(breaks = unique(.data$p)) +
+    stat_summary(fun.y = .critera.fun, colour = "orange", geom = "line") +
+    labs(title = .index, y = NULL) +
+    theme_bw()
+}
+
+grid.arrange(grobs = g, nrow = 2)
+```
+
+---
+
+# find better model
+
+.small[
+```{r, fig.align="center"}
+
 subsetsTable = round(best(lm(agree ~.,data), nbest = 2,nvmax=29), 4)
 datatable(subsetsTable, 
           fillContainer = FALSE,
@@ -476,35 +523,18 @@ datatable(subsetsTable,
           options = list(scrollX = TRUE,
                          fixedColumns = TRUE)
 )
-
-
-# Interact <- function(model,nbest,nvmax,force.in,...){
-#   subsets <- regsubsets(formula(model),
-#                         model.frame(model),nbest=nbest,nvmax=nvmax,force.in=force.in,...)
-#   subsets <- with(summary(subsets),
-#                   cbind(p = as.numeric(rownames(which)), which, rss, rsq, adjr2, cp, bic))
-#        
-#   return(subsets)
-# }
-
-
-
-# InterTab = round(best(lm(Y~.+.*. , data), nbest = 2,nvmax=29, force.in = 2:10), 4) %>% 
-#   as.data.frame()
-
-# so???
-# Cprank=order(order(InterTab$cp))
-# Bicrank=order(order(InterTab$bic))
-# adjr2rank=order(order(InterTab$adjr2))
-
-# . <- round(best(lm(Y ~. + .:., data.rm), nbest = 2, nvmax = 10), 4)
-# knitr::kable(., format = 'html')
 ```
 ]
 
 ---
 
+# 候選模型
 
+- M1:
+
+- M2:
+
+- M3:
 
 ---
 
@@ -545,8 +575,8 @@ datatable(outlierDF,
 ```
 ]
 
-Bonferroni critical value = 3.68 ( $\alpha = 0.1$ )  
-Leverage critical value = 0.5 (?? 2p/n = 0.054)
+Bonferroni critical value = .red[3.68] ( $\alpha = 0.1$ )  
+Leverage critical value = .large[0.5] (?? 2p/n = 0.054)
 
 ---
 
@@ -600,9 +630,9 @@ datatable(influentialDF,
 ```
 ]
 
-DFFITS critical value = 0.33 ( $2\sqrt{p/n}$ )  
-Cooks' distance critical value: .red[large >50th], .blue[middle 20~50th] 
-
+DFFITS critical value = .red[0.33 ( $2\sqrt{p/n}$ )]  
+Cooks' distance critical value: .red[large >50th], .blue[middle 20~50th]  
+DFBETA critical value = .red[0.104 ( $2/\sqrt{n}$ )]
 
 ---
 
@@ -632,7 +662,7 @@ gridExtra::grid.arrange(g_proportional, g_index, nrow = 1)
 
 # VIF
 
-```{r}
+```{r, comment=NA}
 #model_scale <- lm(scale(Y) ~ scale(.), data)
 VIF <- data.frame(
   #"beta"       = as.vector(coef(model_1st)[-1]),
