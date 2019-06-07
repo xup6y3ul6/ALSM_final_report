@@ -149,7 +149,7 @@ scatter_and_histogram_plot <- function(.data, .x, .y, .group){
     theme(legend.justification=c(0,1), legend.position=c(0.02,0.98),
           legend.text = element_text(size = 18),
           legend.background = element_rect(fill="transparent"),
-          legend.key.size = unit(1.5, "cm")
+          legend.key.size = unit(1, "cm"),
           legend.title = element_blank())
   
   theme0 <- function(...) theme( legend.position = "none",
