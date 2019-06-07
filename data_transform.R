@@ -17,10 +17,10 @@ voteRate <- data %>%
 
 # gender
 male_number <- data %>% 
-  select_if(grepl("_m", names(.))) %>% 
+  select_if(grepl("_m$", names(.))) %>% 
   apply(1, sum)
 female_number <- data %>% 
-  select_if(grepl("_f", names(.))) %>% 
+  select_if(grepl("_f$", names(.))) %>% 
   apply(1, sum)
 gender_ratio <- male_number / female_number
 gender <- data.frame(male_number, female_number, gender_ratio)
@@ -54,8 +54,10 @@ age_med <- .d %>%
   group_by(site_id) %>% 
   summarise(age_med = median(rep(age_num, count)))
 
-age <- data.frame(old_ratio, middle_ratio, young_ratio, young_old_ratio, age_med) 
-
+age <- data.frame(site_id = data$site_id, old_ratio, middle_ratio, young_ratio, young_old_ratio) 
+age <- age %>% 
+  left_join(age_med, by = "site_id") %>% 
+  select(-site_id)
 # married
 married <- data %>% 
   select(site_id, 喪偶:離婚) %>% 
@@ -78,12 +80,12 @@ salaryMed <- data %>%
 
 # municipality
 .county <- substring(data$site_id, 1, 3)
-.is_municipality <- .county %in% c("臺北市", "新北市", "桃園市", "臺中市", "臺南市", "高雄市")
-.is_municipality_fac <- factor(.is_municipality, levels = c(TRUE, FALSE), labels = c(1, 0))
+.is_municipality <- .county %in% c("臺北市", "新北市", "桃園市", "臺中市", "臺南市", "高雄市") %>% as.numeric()
+.is_municipality_fac <- factor(.is_municipality, levels = c(0,1), labels = c(0,1))
 
 # offshore_island
-.is_offshoreIsland <- .county %in% c("澎湖縣", "金門縣", "連江縣")
-.is_offshoreIsland_fac <- factor(.is_offshoreIsland, levels = c(TRUE, FALSE), labels = c(1, 0))
+.is_offshoreIsland <- .county %in% c("澎湖縣", "金門縣", "連江縣") %>% as.numeric()
+.is_offshoreIsland_fac <- factor(.is_offshoreIsland, levels = c(0,1), labels = c(0,1))
 
 .location <- .is_municipality + .is_offshoreIsland*2
 .location_fac <- factor(.location, levels = c(0, 1, 2), labels = c("county", "special municipality", "offshore island"))
