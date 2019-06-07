@@ -848,6 +848,7 @@ for(i in 1:length(model_weight$coefficients)){
 gridExtra::grid.arrange(grobs = g, nrow = 2)
 ```
 ]
+
 .pull-right[
 ```{r, comment=NULL}
 StatDF <- data.frame(Stat[-1,])
