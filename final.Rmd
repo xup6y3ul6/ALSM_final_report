@@ -291,16 +291,16 @@ knitr::include_graphics("figure/map.png")
 # 變數介紹
 
 .Large[
-Y : agree        第14案公投同意率  
-X1: vote         投票率  
+Y : agree      第14案公投同意率  
+X1: vote       投票率  
 X2: bigCity    是否為六都 $=\left\{\begin{matrix}0,\,非六都\\1,\,是六都\end{matrix}\right.$  
 X3: gender     性別比  
 X4: young      年輕人(18~30)比例  
 X5: middel     中年人(31~64)比例  
-X6: age           年齡中位數  
+X6: age        年齡中位數  
 X7: married    結過婚比例  
-X8: education 教育程度(大專生畢業比例)  
-X9: salary       薪水中位數  
+X8: education  教育程度(大專生畢業比例)  
+X9: salary     薪水中位數  
 ]
 ---
 
