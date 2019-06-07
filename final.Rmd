@@ -24,6 +24,7 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 
 # QR-code of this R presentation
 
+[https://bit.ly/2ZcWYvw](https://bit.ly/2ZcWYvw)
 ```{r, fig.align="center"}
 knitr::include_graphics("QR_code.png")
 ```
@@ -65,18 +66,26 @@ knitr::include_graphics("figure/公投第14案.png")
 
 # Outline
 
-- 文獻回顧與研究目的
+.Large[
+1. .grey[前言與研究目的]
 
-- 資料來源與前處理
+2. 文獻回顧
 
-- 迴歸模型
+3. 資料來源與前處理
 
-- 總結
+4. 迴歸模型
+
+5. 總結
+]
 
 ---
 class: inverse, center, middle
 
 # 文獻回顧
+
+---
+
+# 同性戀態度
 
 ---
 class: inverse, center, middle
@@ -97,6 +106,10 @@ class: inverse, center, middle
     
 - 薪水中位數：
     + [財政部財政資訊中心_105年度綜合所得稅申報核定統計專冊](https://bit.ly/2M3IiwY)
+
+資料數量：全台鄉、鎮、市、區共 368 個  
+.red[反應變項]：公投第14案同意率  
+.blue[預測變項]：投票率、地區(是否為六都)、性別比、年齡、婚姻、教育程度、薪水收入
 
 ---
 
@@ -163,11 +176,12 @@ scatter_and_histogram_plot(Data, .x = "gender_ratio", .y = "agree_rate", .group 
 # 年齡組成
 
 .pull-left_30[
-老人太多較無法接受 & 都是老人去投票？  
+- 老人多且較無法接受? 
+- 都是老人去投票？  
 
 --
 
-老年人(65~)比例
+中年人(31~64)比例
 ```{r, comment=NA}
 print_summary(Data$old_ratio)
 ```
@@ -199,7 +213,6 @@ g
 
 .pull-left_30[
 $曾今結婚率=\frac{喪偶＋有偶+離婚}{Total}$
-
 
 --
 
@@ -261,22 +274,49 @@ knitr::include_graphics("map.png")
 
 ---
 
+# 變數介紹
+
+.Large[
+Y : agree        第14案公投同意率  
+X1: vote         投票率  
+X2: bigCity    是否為六都 $=\left\{\begin{matrix}0,\,非六都\\1,\,是六都\end{matrix}\right.$  
+X3: gender     性別比  
+X4: young      年輕人(18~30)比例  
+X5: middel     中年人(31~64)比例  
+X6: age           年齡中位數  
+X7: married    結過婚比例  
+X8: education 教育程度(大專生畢業比例)  
+X9: salary       薪水中位數  
+]
+---
+
 # scatter-correlation plot
+
 ```{r, fig.align="center", fig.height=7.5, fig.width=10}
 data <- Data %>% 
-  select(agree_rate, 
-         vote_rate, is_municipality, 
-         gender_ratio, young_ratio, middle_ratio, 
-         married_ratio, college_ratio, salary_med)
+  select(agree_rate,     # Y
+         vote_rate,      # X1
+         is_municipality,# X2 
+         gender_ratio,   # X3
+         young_ratio,    # X4
+         middle_ratio,   # X5
+         age_med,        # X6
+         married_ratio,  # X7
+         college_ratio,  # X8
+         salary_med)     # X9
 .names <- names(data)
 names(data) <- c("Y", paste0("X", 1:(length(.names)-1)))
-
-# for(i in 1:length(.names)){
-#   attr(data[[i]], "label") <- .names[i]
-# }
-# 
-
-## reference: https://github.com/ggobi/ggally/issues/139 
+names(data) <- c("agree",
+                 "vote",
+                 "bigCity",
+                 "gender",
+                 "young",
+                 "middle",
+                 "age",
+                 "married",
+                 "education",
+                 "salary")
+#data$bigCity <- factor(data$bigCity, levels = c("0", "1"))
 library(GGally)
 
 ggpairs(data, 
@@ -291,41 +331,42 @@ class: inverse, center, middle
 
 ---
 
-# first ordinal regression
+# 建模流程
 
-agree_rate = vote_rate + municipality + 
-         gender + YO_ratio + married + college + salary
-         
---
-
-```{r, comment=NA, highlight.output=c(2,3,4,6,7,8)}
-library(car)
-model_1st <- lm(Y ~ ., data)
-. <- summary(model_1st)
-.
-.$coefficients %>% round(digits = 3)
-
-```
-
-```{r, comment=NA}
-write.table(paste("Multiple R-squared:", round(.$r.squared, 2), ", ", "Adjusted R-squared:", round(.$adj.r.squared, 2)), 
-            quote = FALSE, row.names = FALSE, col.names = FALSE)
-```
-
+需要流程圖
+！[]()
 
 ---
 
-agree_rate = ...
+# first ordinal regression
+
+agree(Y) = vote(X1) + bigCity(X2) + gender(X3) + young(X4) + middle(X5) + age(X6) + married(X7) + education(X8) + salary(X9)
+         
+--
+
+```{r, comment=NA, highlight.output=c(2,3,4,6,7,8,9,10)}
+library(car)
+model_1st <- lm(agree ~ ., data)
+. <- summary(model_1st)
+.df <- .$coefficients %>% round(digits = 3) %>% as.data.frame()
+.df$signif <- symnum(
+  .df$"Pr(>|t|)",
+  cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1),
+  symbols = c("***", "**", "*", ".", " ")
+)
+.df
+```
 
 ```{r, comment=NA}
-Anova(model_1st,type = "II")
+write.table(paste("Multiple R-squared:", round(.$r.squared, 3), ", ", "Adjusted R-squared:", round(.$adj.r.squared, 3)), 
+            quote = FALSE, row.names = FALSE, col.names = FALSE)
 ```
 
 ---
 
 # residul plot
 
-```{r, fig.align="center", out.width="100%"}
+```{r, fig.align="center", fig.height=7, fig.width=10}
 model_1st_data <- cbind(data,
                         res = residuals(model_1st),
                         fit = predict(model_1st))
@@ -338,9 +379,14 @@ g <- lapply(Xnames, function(X){
 
 gridExtra::grid.arrange(grobs = g, nrow = 3)
 ```
+
+可發現總有一筆 data .lightPink[連江縣東引鄉] 總是不一樣  
+但變異數似乎沒有不同質
+
 ---
 
 # Q-Q plot
+
 ```{r}
 ggplot(model_1st_data, aes(sample = res)) +
   geom_qq() +
@@ -348,45 +394,445 @@ ggplot(model_1st_data, aes(sample = res)) +
   theme_bw()
 ```
 
-
-# check outlier
+```{r}
+model_1st_qq <- qqnorm(model_1st_data$res, plot.it = FALSE)
+cor(model_1st_qq$x, model_1st_qq$y)
+```
 
 ---
 
-# after removed outlier
+# add-variable plot
 
-```{r, comment=NA, highlight.output=2:9}
-data.rm <- data[-4,]
-model_1st.rm <- lm(Y ~ ., data.rm)
-. <- summary(model_1st.rm)
-.$coefficients %>% round(digits = 3)
-```
 ```{r}
-write.table(paste("Multiple R-squared:", round(.$r.squared, 2), ", ", "Adjusted R-squared:", round(.$adj.r.squared, 2)), 
-            quote = FALSE, row.names = FALSE, col.names = FALSE)
+# par(mfcol = c(3,3))
+# 
+# testdata = data
+# . <- testdata$bigCity %>% as.character() %>% as.numeric()
+# testdata$bigCity <- .
+# for(i in 1:(dim(testdata)[2]-2)){
+#   for(j in (i+1):(dim(testdata)[2]-1)){
+#       .testdata=testdata
+#       modelY=lm(agree~.,.testdata)
+#       .X=select(testdata,-agree)
+#         
+#       modelX=lm(.X[,names(.X)[i]]*.X[,names(.X)[j]]~., .X)
+#        
+#       . <- data.frame(xres = modelX$residuals, yres = modelY$residuals) 
+#    # #   ggplot(., aes(xres, yres)) +
+#    #      geom_point() +
+#    #      geom_smooth(method="lm") +
+#    #      theme_bw()
+#       plot(modelX$residuals, modelY$residuals,xlab = c(names(testdata)[i+1], names(testdata)[j+1]), ylab = "e(Y|other variable)",main = "add variable plot")
+#       
+#       abline(lm(modelY$residuals~modelX$residuals,.))
+#       
+#   }
+# }
+
 ```
+ 
 
 ---
 
 # find better models
 
-```{r, comment=NA}
+.small[
+```{r, eval=require('DT'), tidy=FALSE}
 library(leaps)
 library(MPV)
+library(DT)
 best <- function(model, nbest = 1, nvmax = 8, ...) {
   subsets <- regsubsets(formula(model), model.frame(model), nbest = nbest, nvmax = nvmax, ...)
   subsets <- with(summary(subsets),
-                  cbind(p = as.numeric(rownames(which)), which, rss,
-                        rsq, adjr2, cp, bic))
-    
+                  cbind(p = as.numeric(rownames(which)) + 1, 
+                        which, rss, rsq, adjr2, cp, bic))
+  subsets <- as.data.frame(subsets)
+  subsets$aic <- subsets$bic - log(nrow(model.frame(model)))*subsets$p + 2*subsets$p
+  rownames(subsets) <- NULL
+  
+  # press
+  .combination <- lapply(1:nrow(subsets), function(x){
+    colnames(subsets)[which(subsets[x, 3:(ncol(subsets)-6)] == 1)+2]
+  })
+
+  .Y <- formula(model_1st) %>% as.character() %>% strsplit(" ~ ")
+  Y <- .Y[[2]]
+  combination <- lapply(.combination, function(x){
+    X <- x %>% gsub(pattern = "[0-9]", replacement = "") # remove factor integer
+    paste(Y, "~", paste(X, collapse = "+"))
+  }) 
+  lm_combination <- lapply(combination, function(x){lm(as.formula(x), data = model.frame(model))}) 
+  press <- sapply(lm_combination, function(x){PRESS(x)})
+  
+  subsets$PRESS <- press
+  
   return(subsets)
 }  
 
-. <- round(best(lm(Y ~. + .:., data.rm), nbest = 2, nvmax = 10), 4)
-knitr::kable(., format = 'html')
+subsetsTable = round(best(lm(agree ~.,data), nbest = 2,nvmax=29), 4)
+datatable(subsetsTable, 
+          fillContainer = FALSE,
+          extensions = 'FixedColumns',
+          options = list(scrollX = TRUE,
+                         fixedColumns = TRUE)
+)
+
+
+# Interact <- function(model,nbest,nvmax,force.in,...){
+#   subsets <- regsubsets(formula(model),
+#                         model.frame(model),nbest=nbest,nvmax=nvmax,force.in=force.in,...)
+#   subsets <- with(summary(subsets),
+#                   cbind(p = as.numeric(rownames(which)), which, rss, rsq, adjr2, cp, bic))
+#        
+#   return(subsets)
+# }
+
+
+
+# InterTab = round(best(lm(Y~.+.*. , data), nbest = 2,nvmax=29, force.in = 2:10), 4) %>% 
+#   as.data.frame()
+
+# so???
+# Cprank=order(order(InterTab$cp))
+# Bicrank=order(order(InterTab$bic))
+# adjr2rank=order(order(InterTab$adjr2))
+
+# . <- round(best(lm(Y ~. + .:., data.rm), nbest = 2, nvmax = 10), 4)
+# knitr::kable(., format = 'html')
+```
+]
+
+---
+
+
+
+---
+
+# BP test
+
+---
+
+# check outlier
+
+.small[
+```{r}
+outlierDF <- data.frame(
+  "e_i" = round(resid(model_1st), 3),
+  "h_ii" = round(hatvalues(model_1st), 3),
+  "t_i" = round(rstudent(model_1st), 3))
+
+alpha <- 0.1
+n <- nrow(model.frame(model_1st))
+p <- length(coefficients(model_1st))
+
+critical_by_Y <- qt((1-alpha/(2*n)), n-p-1) 
+#outlierDF$outlier_by_Y <- outlierDF$t_i > critical_by_Y
+
+critical_by_X <- 0.5
+#critical_by_X <- 2*p/n
+#outlierDF$outlier_by_X <- outlierDF$h_ii > critical_by_X
+
+datatable(outlierDF,
+          fillContainer = FALSE,
+          extensions = 'FixedColumns',
+          options = list(scrollX = TRUE,
+                           fixedColumns = TRUE)) %>% 
+  formatStyle(0:ncol(outlierDF), fontSize = "10pt") %>% 
+  formatStyle("h_ii",
+              color = styleInterval(c(critical_by_X), c('black', 'red'))) %>% 
+  formatStyle("t_i",
+              color = styleInterval(c(critical_by_Y), c('black', 'red'))) 
+```
+]
+
+Bonferroni critical value = 3.68 ( $\alpha = 0.1$ )  
+Leverage critical value = 0.5 (?? 2p/n = 0.054)
+
+---
+
+# check influence
+
+.small[
+```{r}
+model <-model_1st
+influentialDF <- data.frame(
+  "DFFITS"   = dffits(model) %>% round(digits = 3),
+  "Cooks_D"  = cooks.distance(model) %>% round(digits = 3),
+  "DFBETA"   = dfbeta(model) %>% round(digits = 3)
+)
+
+sketch <-  htmltools::withTags(table(
+  class = 'display',
+  thead(
+    tr(
+      th(rowspan = 2, ""),
+      th(rowspan = 2, 'DFFITS'),
+      th(rowspan = 2, 'Cooks_D'),
+      th(colspan = ncol(dfbeta(model)), 'DFBETA')
+    ),
+    tr(
+      lapply(paste0("b_", 0:(ncol(dfbeta(model))-1)), th)
+    )
+  )
+))
+
+DFFITS_critical <- 2*sqrt(p/n)
+CD_50 <- pf(0.5, p, n-p)
+CD_20 <- pf(0.2, p, n-p)
+DFBETAS_critical <- 2/sqrt(n)
+
+datatable(influentialDF,
+          fillContainer = FALSE,
+          container = sketch,
+          extensions = 'FixedColumns',
+          options = list(scrollX = TRUE,
+                         fixedColumns = FALSE,
+                         pageLength = 10,
+                         autoWidth = TRUE,
+                         columnDefs = list(list(width = '65px', targets = c(0))))) %>% 
+  formatStyle(0:ncol(influentialDF), fontSize = "10pt") %>% 
+  formatStyle("DFFITS",
+              color = styleInterval(c(-DFFITS_critical, DFFITS_critical), c('red', 'black', 'red'))) %>% 
+  formatStyle("Cooks_D",
+              color = styleInterval(c(CD_20, CD_50), c("black", "blue", "red"))) %>% 
+  formatStyle(3:nrow(influentialDF),
+              color = styleInterval(c(DFBETAS_critical), c("black", "red")))
+```
+]
+
+DFFITS critical value = 0.33 ( $2\sqrt{p/n}$ )  
+Cooks' distance critical value: .red[large >50th], .blue[middle 20~50th] 
+
+
+---
+
+# Cook's distance plot
+
+```{r,fig.align="center", fig.height=7.5, fig.width=10}
+.data <- data.frame("res" = residuals(model_1st), 
+                    "fit" = predict(model_1st),
+                    "Cooks_D" = influentialDF$Cooks_D,
+                    "index" = 1:nrow(data)
+)
+g_proportional <- ggplot(.data, aes(x = res, y = fit)) +
+  geom_point(aes(size = Cooks_D)) +
+  theme_bw() +
+  theme(legend.justification=c(0,1), 
+        legend.position=c(0.75, 0.99), 
+        legend.background = element_rect(fill="transparent"))
+g_index <- ggplot(.data, aes(x = index, y = Cooks_D)) +
+  geom_line(color = "grey") +
+  geom_point() +
+  theme_bw() 
+gridExtra::grid.arrange(g_proportional, g_index, nrow = 1)
+```
+
+
+---
+
+# VIF
+
+```{r}
+#model_scale <- lm(scale(Y) ~ scale(.), data)
+VIF <- data.frame(
+  #"beta"       = as.vector(coef(model_1st)[-1]),
+  #"beta_scale" = as.vector(coef(model_scale)[-1]),
+  "VIF"        = car::vif(lm(model_1st))
+)
+VIF %>% round(digits = 3)
+```
+
+應該不需要對變異數不同質討論
+
+---
+
+# IRLS robust regression
+
+```{r}
+IRLS <- function(model, i = 1, method = c("Huber", "Bisquare"), is_first = TRUE) {
+  e   <- resid(model)
+  MAD <- median(abs(e - median(e))) / 0.6745  # (11.46)
+  u   <- e / MAD  # (11.47)
+  w   <- apply(data.frame(u), 1, function(x) {
+    if (is_first | method == "Huber") {
+      if (abs(x) <= 1.345) 1 else 1.345/abs(x)  # (11.44) Huber weight
+    } else {
+      if (abs(x) <= 1.345) (1-(x/4.685)^2)^2 else 0  # (11.45) Bisqure weight
+    }
+    
+    
+  })
+    
+  model <- update(model, weights = w)
+  if (i > 1) return(IRLS(model, i-1, method = method, is_first = FALSE)) else return(model)  # Recursive return definition
+}
+
+tab <- cbind(
+  "e0" = resid(model_1st),
+  "u0" = resid(model_1st) / (median(abs(resid(model_1st) - median(resid(model_1st)))) / 0.6745),
+  "w1" = IRLS(model_1st, 1)$weights,
+  "e1" = resid( IRLS(model_1st, 1) ),
+  "w2" = IRLS(model_1st, 2)$weights,
+  "e2" = resid( IRLS(model_1st, 2) ),
+  "w7" = IRLS(model_1st, 7)$weights,
+  "e7" = resid( IRLS(model_1st, 7) ))
+
+# round(tab, 4)
+
+ggplot(data.frame(id = 1:nrow(tab), weight = tab[,7]), aes(x = id, y = weight)) +
+  geom_point() +
+  geom_path(size = 0.3, color = "grey") +
+  theme_bw()
 ```
 
 ---
+
+# Check influence again
+
+.small[
+```{r}
+model <-lm(agree ~ ., data, weights = IRLS(model_1st, 7)$weights)
+influentialDF <- data.frame(
+  "DFFITS"   = dffits(model) %>% round(digits = 3),
+  "Cooks_D"  = cooks.distance(model) %>% round(digits = 3),
+  "DFBETA"   = dfbeta(model) %>% round(digits = 3)
+)
+
+sketch <-  htmltools::withTags(table(
+  class = 'display',
+  thead(
+    tr(
+      th(rowspan = 2, ""),
+      th(rowspan = 2, 'DFFITS'),
+      th(rowspan = 2, 'Cooks_D'),
+      th(colspan = ncol(dfbeta(model)), 'DFBETA')
+    ),
+    tr(
+      lapply(paste0("b_", 0:(ncol(dfbeta(model))-1)), th)
+    )
+  )
+))
+
+p <- length(coefficients(model))
+n <- nrow(model.frame(model))
+  
+DFFITS_critical <- 2*sqrt(p/n)
+CD_50 <- pf(0.5, p, n-p)
+CD_20 <- pf(0.2, p, n-p)
+DFBETAS_critical <- 2/sqrt(n)
+
+datatable(influentialDF,
+          fillContainer = FALSE,
+          container = sketch,
+          extensions = 'FixedColumns',
+          options = list(scrollX = TRUE,
+                         fixedColumns = FALSE,
+                         pageLength = 10,
+                         autoWidth = TRUE,
+                         columnDefs = list(list(width = '65px', targets = c(0))))) %>% 
+  formatStyle(0:ncol(influentialDF), fontSize = "10pt") %>% 
+  formatStyle("DFFITS",
+              color = styleInterval(c(-DFFITS_critical, DFFITS_critical), c('red', 'black', 'red'))) %>% 
+  formatStyle("Cooks_D",
+              color = styleInterval(c(CD_20, CD_50), c("black", "blue", "red")))
+```
+]
+
+---
+
+# IRLS robust regression
+
+```{r}
+model_weight <- lm(agree ~ ., data, weights = IRLS(model_1st, 7)$weights)
+. <- summary(model_weight)
+.df <- .$coefficients %>% round(digits = 3) %>% as.data.frame()
+.df$signif <- symnum(
+  .df$"Pr(>|t|)",
+  cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1),
+  symbols = c("***", "**", "*", ".", " ")
+)
+.df
+```
+
+```{r, comment=NA}
+write.table(paste("Multiple R-squared:", round(.$r.squared, 3), ", ", "Adjusted R-squared:", round(.$adj.r.squared, 3)), 
+            quote = FALSE, row.names = FALSE, col.names = FALSE)
+```
+
+---
+
+# IRLS robust regression
+
+---
+
+# bootstrap
+.pull-left[
+```{r, highlight.output=c()}
+bootstrap <- function(model, coef, times = 1000, alpha = 0.05) {
+  b     <- coef(model)[[coef]]
+  n     <- nrow(model.frame(model))
+  coefs <- vector(mode = "numeric", length = times)
+  for (i in seq(times))
+  {
+    estar <- sample(resid(model), size = n, replace = TRUE)
+    fstar <- fitted(model) + estar
+    bootmodel  <- lm(fstar ~ .-agree, data = model.frame(model))
+    coefs[i] <- coef(bootmodel)[[coef]]
+  }
+  
+  p <- quantile(coefs, probs = c(alpha/2, 1-alpha/2))
+  
+  statistics <- cbind(
+    "mean"      = mean(coefs),
+    "sd"        = sd(coefs),
+    "b(a/2)"    = p[[1]],
+    "b(1-a/2)"  = p[[2]])
+  
+  confint <- cbind(
+    'd1'  = b - p[[1]],
+    'd2'  = p[[2]] - b,
+    'lwr' = 2*b - p[[2]],
+    'upr' = 2*b - p[[1]])
+  
+  return (list(coefs = coefs, statistics = statistics, confint = confint))
+}
+
+
+Stat <- vector(mode="numeric",length = 4)
+CI <- vector(mode="numeric",length = 4)
+g <- list()
+for(i in 1:length(model_weight$coefficients)){
+  z <- bootstrap(model_weight, coef=i)
+  # hist(z$coefs, breaks = 40, main = "", xlab = names(model_1st$coefficients)[i])
+  # title("bootstrap result")
+  
+  g[[i]] <- ggplot(data.frame(coef = z$coefs), aes(x = coef)) +
+    geom_histogram(bins = 40) +
+    labs(x = names(model_1st$coefficients)[i], y = NULL) +
+    theme_bw()
+  
+  Stat <- rbind(Stat, z$statistics)
+  CI <- rbind(CI, z$confint)
+}
+
+gridExtra::grid.arrange(grobs = g, nrow = 2)
+```
+]
+.pull-right[
+```{r, comment=NULL}
+StatDF <- data.frame(Stat[-1,])
+CIDF <- data.frame(CI[-1,])
+bootstrap_result <- data.frame(StatDF$mean, StatDF$sd, CIDF$lwr, CIDF$upr, row.names = names(model_1st$coefficients))
+names(bootstrap_result) <- c("mean", "sd", "CI_lwr", "CI_upr")
+bootstrap_result %>% round(digits = 3)
+```
+]
+---
+
+# model validation
+
+---
+
 class: inverse, center, middle
 
 # 總結
