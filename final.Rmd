@@ -868,3 +868,5 @@ class: inverse, center, middle
 # 總結
 
 ---
+
+# 總結
