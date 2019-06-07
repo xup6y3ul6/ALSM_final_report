@@ -1,4 +1,4 @@
-
+.Large { font-size: 160% }
 
 .large { font-size: 130% }
 
@@ -44,3 +44,16 @@ h1{
   padding-right: 40px;
   padding-bottom: 10px;
 }
+
+
+.black { color: black; }
+.white { color: white; }
+.red { color: red; }
+.blue { color: blue; }
+.green { color: green; }
+.yellow { color: yellow; }
+.orange { color: orange; }
+.purple { color: purple; }
+.gray { color: gray; }
+.grey { color: gray; }
+.lightPink { color: #FF1B70; }
