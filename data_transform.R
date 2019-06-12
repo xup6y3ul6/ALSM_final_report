@@ -8,7 +8,6 @@ data <- readRDS("rawdata.rds")
 referendum14 <- data %>% 
   select(1:10) %>% 
   mutate(agree_rate = 同意票數/有效票數)
-referendum14$agree_rate <- round(referendum14$agree_rate, digits = 3)
 
 # vote rate
 voteRate <- data %>% 
@@ -58,6 +57,8 @@ age <- data.frame(site_id = data$site_id, old_ratio, middle_ratio, young_ratio, 
 age <- age %>% 
   left_join(age_med, by = "site_id") %>% 
   select(-site_id)
+
+
 # married
 married <- data %>% 
   select(site_id, 喪偶:離婚) %>% 
