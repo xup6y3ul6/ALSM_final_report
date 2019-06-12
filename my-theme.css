@@ -2,6 +2,8 @@
 
 .large { font-size: 130% }
 
+.big { font-size: 115%; }
+
 .small { font-size: 70% }
 
 .tiny { font-size: 40%}
@@ -89,6 +91,14 @@ h1{
 }
 .scroll-box-20 {
   height:20em;
+  overflow-y: scroll;
+}
+.scroll-box-24 {
+  height:24em;
+  overflow-y: scroll;
+}
+.scroll-box-28 {
+  height:28em;
   overflow-y: scroll;
 }
 .scroll-output {
