@@ -422,7 +422,7 @@ class: inverse, center, middle
 3. 整斷與修補模型 (變異數同質和常態分佈假設)
 4. 建立其他候選模型 (Best subset algorithms)
 5. 重複步驟 3
-6. 檢查共線性、離群質、影響力指標並作修整
+6. 檢查共線性、離群值、影響力指標並作修整
 7. Bootstrap
 8. 選出最終模型
 ]
@@ -582,7 +582,7 @@ ggplot(.data, aes(lambda, SSE)) +
 
 ---
 
-# Add variable plot
+# Added variable plot
 
 ```{r, fig.align="center"}
 # Xnames <- names(data)[-1]
