@@ -721,7 +721,7 @@ VIF %>% round(digits = 3)
 
 M1 沒有共線性的問題；然而 M2、M3 卻有很嚴重的共線性  
 
-因此，我們對資料進行 centering 後...
+因此，我們對資料進行 .lightPink[centering] 後...
 
 ```{r, comment=NA}
 data_scale <- data # ????????類別變項scale????????
@@ -742,6 +742,8 @@ VIF_scale %>% round(digits = 3)
 ```
 
 共線性的問題改善許多
+
+接下來的分析我們以 M3 來作為範例
 ]
 
 ---
@@ -1020,7 +1022,9 @@ datatable(influentialDF,
 
 # Bootstrap
 
-我們最終想看模型的精準性，然而此筆資料 1. 變異數不同質、2. 不符合常態假設、3. weighted，因此不應該用原有方式來看
+我們最終想看模型的精準性，然而此筆資料 .lightPink[1. 變異數不同質、2. 不符合常態假設、3. weighted]，因此不應該用原有方式來看
+
+--
 
 ```{r, fig.align="center"}
 bootstrap <- function(model, coef, times = 2000, alpha = 0.05) {
@@ -1127,7 +1131,7 @@ $\begin{align}M2: Agree = 0.434 &- 0.142 \, Vote + 0.006 \, BigCity + 0.002 \, A
 
 
 
-$\begin{align}M3: Agree = 0.457 &- 0.138, Vote + 0.005 \, BigCity + 0.003 \, Age \\&- 0.253 \, Married + 0.180 \, Education \color{red}{- 0.10\,Gender}\\& \color{red}{+ 0.100\, Vote \times Education} \color{red}{-0.014 \, Vote \times BigCity} \\& \color{red}{-0.007 \, BigCity \times Married} + \epsilon\end{align}$
+$\begin{align}M3: Agree = 0.457 &- 0.138\, Vote + 0.005 \, BigCity + 0.003 \, Age \\&- 0.253 \, Married + 0.180 \, Education \color{red}{- 0.10\,Gender}\\& \color{red}{+ 0.100\, Vote \times Education} \color{red}{-0.014 \, Vote \times BigCity} \\& \color{red}{-0.007 \, BigCity \times Married} + \epsilon\end{align}$
 
 --
 
@@ -1145,7 +1149,7 @@ class: inverse, center, middle
 
 最終模型：
 
-$\begin{align}M3: Agree = 0.457 &- 0.138, Vote + 0.005 \, BigCity + 0.003 \, Age \\&- 0.253 \, Married + 0.180 \, Education - 0.10\,Gender\\& + 0.100\, Vote \times Education  -0.014 \, Vote \times BigCity \\& -0.007 \, BigCity \times Married + \epsilon\end{align}$
+$\begin{align}M3: Agree = 0.457 &- 0.138\, Vote + 0.005 \, BigCity + 0.003 \, Age \\&- 0.253 \, Married + 0.180 \, Education - 0.10\,Gender\\& + 0.100\, Vote \times Education  -0.014 \, Vote \times BigCity \\& -0.007 \, BigCity \times Married + \epsilon\end{align}$
 
 --
 
