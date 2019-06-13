@@ -1,8 +1,8 @@
 # Final Report
 
-https://xup6y3ul6.github.io/ALSN_final_report/final.html
+https://xup6y3ul6.github.io/ALSM_final_report/final.html
 
-https://xup6y3ul6.github.io/ALSN_final_report/referendum14_map.html
+https://xup6y3ul6.github.io/ALSM_final_report/referendum14_map.html
 
 =================================================
 
