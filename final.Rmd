@@ -1004,7 +1004,7 @@ datatable(influentialDF,
                          fixedColumns = TRUE,
                          pageLength = 10,
                          autoWidth = TRUE,
-                         columnDefs = list(list(width = '65px', targets = c(0)))
+                         columnDefs = list(list(width = '75px', targets = c(0)))
                          )) %>% 
   formatStyle(0:ncol(influentialDF), fontSize = "10pt") %>% 
   formatStyle("DFFITS",
@@ -1022,7 +1022,7 @@ datatable(influentialDF,
 
 # Bootstrap
 
-我們最終想看模型的精準性，然而此筆資料 .lightPink[1. 變異數不同質、2. 不符合常態假設、3. weighted]，因此不應該用原有方式來看
+我們最終想看模型的精準性，然而此筆資料.lightPink[1.變異數不同質、2.不符合常態假設、3.weighted]，因此不應該用原有方式來看
 
 --
 
@@ -1093,7 +1093,7 @@ bootstrap_result %>% round(digits = 3)
 
 --
 
-$\begin{align}M3: Agree^* = &- 0.214, Vote + 0.121 \, BigCity + 0.194 \, Age \\&- 0.153 \, Married + 0.456 \, Education \color{red}{- 0.251\,Gender}\\& \color{red}{+ 0.137\, Vote \times Education} \color{red}{-0.189 \, Vote \times BigCity} \\& \color{red}{-0.109 \, BigCity \times Married} + \epsilon\end{align}$
+$\begin{align}M3: \widehat{Agree^*} = &- 0.214, Vote + 0.121 \, BigCity + 0.194 \, Age \\&- 0.153 \, Married + 0.456 \, Education \color{red}{- 0.251\,Gender}\\& \color{red}{+ 0.137\, Vote \times Education} \color{red}{-0.189 \, Vote \times BigCity} \\& \color{red}{-0.109 \, BigCity \times Married} \end{align}$
 
 ---
 
@@ -1123,15 +1123,15 @@ coefficient=model_2_scale_IRLS$coefficients*SdY/Sd
 coefficient$intercept=MeanY-(sum(Mean*coefficient))
 ```
 
-$\begin{align}M1: Agree = 0.383 &+ 0.005 \, Vote - 0.133 \, BigCity + 0.003 \, Age \color{blue}{- 0.146 \, Married} \\&+ 0.196 \, Education  \color{red}{-0.108 \, Gender} + \epsilon\end{align}$
+$\begin{align}M1: \widehat{Agree} = 0.383 &+ 0.005 \, Vote - 0.133 \, BigCity + 0.003 \, Age \color{blue}{- 0.146 \, Married} \\&+ 0.196 \, Education  \color{red}{-0.108 \, Gender} \end{align}$
 
 
 
-$\begin{align}M2: Agree = 0.434 &- 0.142 \, Vote + 0.006 \, BigCity + 0.002 \, Age \\&- 0.358 \, Married + 0.230 \, Education \\& \color{red}{+0.117 \, Vote \times Education} \color{red}{-0.015 \, Vote \times BigCity} \\ &\color{red}{-0.007 \, BigCity \times Married} + \epsilon\end{align}$
+$\begin{align}M2: \widehat{Agree} = 0.434 &- 0.142 \, Vote + 0.006 \, BigCity + 0.002 \, Age \\&- 0.358 \, Married + 0.230 \, Education \\& \color{red}{+0.117 \, Vote \times Education} \color{red}{-0.015 \, Vote \times BigCity} \\ &\color{red}{-0.007 \, BigCity \times Married} \end{align}$
 
 
 
-$\begin{align}M3: Agree = 0.457 &- 0.138\, Vote + 0.005 \, BigCity + 0.003 \, Age \\&- 0.253 \, Married + 0.180 \, Education \color{red}{- 0.10\,Gender}\\& \color{red}{+ 0.100\, Vote \times Education} \color{red}{-0.014 \, Vote \times BigCity} \\& \color{red}{-0.007 \, BigCity \times Married} + \epsilon\end{align}$
+$\begin{align}M3: \widehat{Agree} = 0.457 &- 0.138\, Vote + 0.005 \, BigCity + 0.003 \, Age \\&- 0.253 \, Married + 0.180 \, Education \color{red}{- 0.10\,Gender}\\& \color{red}{+ 0.100\, Vote \times Education} \color{red}{-0.014 \, Vote \times BigCity} \\& \color{red}{-0.007 \, BigCity \times Married} \end{align}$
 
 --
 
