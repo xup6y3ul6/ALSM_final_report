@@ -28,7 +28,7 @@ Data$site_id <- rownames(Data)
 .Data_select <- Data %>% 
   select(group, site_id, is_municipality)
 .Data_select2 <- Data %>% 
-  select(agree_rate, vote_rate, gender_ratio, young_old_ratio, 
+  select(agree_rate, vote_rate, gender_ratio, age_med, 
          married_ratio, college_ratio, salary_med) %>% 
   round(digits = 3)
 Data_select <- cbind(.Data_select, .Data_select2)
@@ -69,7 +69,7 @@ TTA.map <- leaflet(TTA) %>%
                                htmlTable(gather(key = "類別", value = "值", 
                                                 TTA@data[row, c("site_id", "agree_rate", "vote_rate",
                                                                 "is_municipality", "gender_ratio",
-                                                                "young_old_ratio", "married_ratio",
+                                                                "age_med", "married_ratio",
                                                                 "college_ratio", "salary_med")]))})) %>%
   addLegend("bottomleft",
             title = "公投第14案同意率",
@@ -79,7 +79,7 @@ TTA.map <- leaflet(TTA) %>%
 
 
 
-#saveWidget(TTA.map, file="referendum14_map.html")
+saveWidget(TTA.map, file="referendum14_map.html")
 
 #mapview::mapshot(TTA.map, "test.png")
 
