@@ -184,7 +184,7 @@ X7: Salary       薪水中位數 (千元)
 ]
 ---
 
-# 資料地圖 [(連結)](https://xup6y3ul6.github.io/ALSN_final_report/referendum14_map.html#1)
+# 資料地圖 [(連結)](https://xup6y3ul6.github.io/ALSM_final_report/referendum14_map.html#1)
 
 ```{r, fig.height=6, out.width="60%", fig.align="center"}
 knitr::include_graphics("figure/map.png")
@@ -838,7 +838,7 @@ datatable(influentialDF,
 
 .small[
 DFFITS critical value = .red[0.276] ( $=2\sqrt{p/n}$ )  
-Cooks' distance critical value: .red[large >50th]  
+Cooks' distance critical value: .red[large >50th percentile]  
 DFBETA critical value = .red[0.104] ( $=2/\sqrt{n}$ )
 ]
 
