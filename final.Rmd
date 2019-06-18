@@ -500,9 +500,10 @@ $$\left\{\begin{align}&H_0: normal\\&H_1: not\,normal\end{align}\right.$$
 # 變異數同質性考驗
 
 .large[
-$\left\{\begin{align}&H_0: 變異數不同質\\&H_1: 變異數同質\end{align}\right.$
+$\left\{\begin{align}&H_0: 變異數同質\\&H_1: 變異數不同質\end{align}\right.$
 ]
 
+.pull-left[
 ### Brown-Forsythe Test
 
 ```{r, comment=NA}
@@ -529,7 +530,11 @@ if (abs(t_BF) > t_critical) {
 ```
 
 - 拒絕 $H_0$
+]
 
+--
+
+.pull-right[
 ### Breusch–Pagan test
 
 ```{r, comment=NA}
@@ -537,6 +542,7 @@ lmtest::bptest(model_0)
 ```
 
 - p < 0.05, 拒絕 $H_0$
+]
 
 ---
 
@@ -1149,7 +1155,7 @@ class: inverse, center, middle
 
 最終模型：
 
-$\begin{align}M3: Agree = 0.457 &- 0.138\, Vote + 0.005 \, BigCity + 0.003 \, Age \\&- 0.253 \, Married + 0.180 \, Education - 0.10\,Gender\\& + 0.100\, Vote \times Education  -0.014 \, Vote \times BigCity \\& -0.007 \, BigCity \times Married + \epsilon\end{align}$
+$\begin{align}M3: \widehat{Agree} = 0.457 &- 0.138\, Vote + 0.005 \, BigCity + 0.003 \, Age \\&- 0.253 \, Married + 0.180 \, Education - 0.10\,Gender\\& + 0.100\, Vote \times Education  -0.014 \, Vote \times BigCity \\& -0.007 \, BigCity \times Married \end{align}$
 
 --
 
@@ -1200,9 +1206,9 @@ g
 
 若我們將依照年齡拆成三組與同意率做散佈圖
 
-- 年輕人 (18~30) 負相關
-- 中年人 (31-65) 正相關
-- 老年人 (65-)   無相關
+- 年輕人 (18~30) 負相關 (r = -0.14)
+- 中年人 (31-65) 正相關 (r =  0.21)
+- 老年人 (65-)   無相關 (r = -0.04)
 
 ]
 
